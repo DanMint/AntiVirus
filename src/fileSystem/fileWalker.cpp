@@ -1,29 +1,15 @@
 #include <iostream>
 
 #include "fileWalker.h"
+#include "../utils/utils.h"
 
-FileWalker::FileWalker(const std::string &startingDir) : startingDir(startingDir) {
-    if (FileWalker::checkFileExistence(this->startingDir)) {
-        FileWalker::start();
-    }
-    else {
-        std::cerr << "Given file/directory does not exist\n";
-    }
-}
-
-bool FileWalker::checkFileExistence(const fs::path& p, fs::file_status s) {
-    std::cout << "Checking file: " << p;
-    if (fs::status_known(s) ? fs::exists(s) : fs::exists(p)) {
-        std::cout << "File exists\n";
-        return true;
-    }
-    else {
-        std::cout << "File does not exist\n";
-       return false;
-    }
-        
-}
+FileWalker::FileWalker(const RunParameters &currentParameters) : currentParameters(currentParameters) {}
 
 void FileWalker::start() {
     std::cout << "Starting to walk files\n";
+    if (this->currentParameters.isDirectory) {
+        for (auto const &dir_entry : fs::recursive_directory_iterator(this->currentParameters.passedFile)) {
+            std::cout << dir_entry << "\n";
+        }
+    }
 }

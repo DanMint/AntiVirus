@@ -2,11 +2,18 @@
 #include <filesystem>
 
 #include "fileSystem/fileWalker.h"
+#include "utils/utils.h"
+#include "utils/runParameters.h"
 
+// folder test path: "/Users/daniel/Desktop/Antivirus"
 
-int main() {
+int main(int argc, char *argv[]) {
 
-    FileWalker startWalk("/Users/daniel/Desktop/Antivirus");
+    RunParameters RunParameters;
+
+    Utils::checkValidityOfArguments(argc, argv, RunParameters);
+
+    FileWalker startWalk(argv[1]);
 
     return 0;
 }

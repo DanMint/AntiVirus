@@ -3,16 +3,16 @@
 #include <string>
 #include <filesystem>
 
+#include "../utils/runParameters.h"
+
 namespace fs = std::filesystem;
 
 class FileWalker {
     public:
-        FileWalker(const std::string &startingDir);
-
-        bool checkFileExistence(const fs::path& p, fs::file_status s = fs::file_status{});
+        FileWalker(const RunParameters &currentParameters);
 
         void start();
 
     private:
-        const std::string startingDir;
+        const RunParameters currentParameters;
 };
