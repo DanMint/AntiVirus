@@ -29,7 +29,9 @@ void Utils::checkValidityOfArguments(const int argc, char* const argv[], RunPara
 bool Utils::checkFileExistence(const fs::path& p, fs::file_status s) {
     std::cout << "Checking file: " << p;
     if (fs::status_known(s) ? fs::exists(s) : fs::exists(p)) {
-        std::cout << "File exists\n";
+        #ifdef DEBUG
+            std::cout << "File exists\n";
+        #endif
         return true;
     }
     else {

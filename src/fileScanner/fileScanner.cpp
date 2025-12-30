@@ -1,15 +1,17 @@
 #include "fileScanner.h"
+#include "../utils/utils.h"
 
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-
+#include <filesystem>
 
 FileScanner::FileScanner(const std::string &filePath) : filePath(filePath) {
-    // For debugging
-    std::cout << "Here is the passed: " << this->filePath << '\n';
+    #ifdef DEBUG
+        std::cout << "Here is the passed: " << this->filePath << '\n';
+    #endif
     FileScanner::start();
 }
 
@@ -80,16 +82,161 @@ std::string FileScanner::hashingFucntion(const EVP_MD* algo) {
     return hex.str();
 }
 
-void FileScanner::start() {
-    std::string md5 = FileScanner::hashingFucntion(EVP_md5());
-    std::string sha1 = FileScanner::hashingFucntion(EVP_sha1());
-    std::string sha256 = FileScanner::hashingFucntion(EVP_sha256());
+bool FileScanner::checkMD5Hashes(const std::string &fileMD5Hash) {
+    // this is the relative path from where the program is executed
+    std::filesystem::path folder = "src/fileScanner/Malware-Hash-Database/MD5"; 
+    if (!Utils::checkFileExistence(folder)) {
+        #ifdef DEBUG
+            std::cout << "In checkMD5Hashes function. Passed folder not found. Check where you are running the program from\n";
+        #endif
 
-    std::cout << "------------------------------------------------\n";
-    std::cout << "DEBUGGIN STEP:\n";
-    std::cout << "MD5 hash: " << md5 << '\n';
-    std::cout << "MD5 hash: " << sha1 << '\n';
-    std::cout << "MD5 hash: " << sha256 << '\n';
-    std::cout << "------------------------------------------------\n";
+        std::cerr << "Folder not found\n";
+        return false;
+    }
+
+    #ifdef DEBUG
+        std::cout << "In checkMD5Hashes function. Found folder\n";
+        std::cout << "Printing out all of the files in folder\n";
+        for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+            std::cout << dirEntry.path() << '\n';
+        }
+    #endif
+    
+    for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+        if (dirEntry.is_regular_file() && dirEntry.path().extension() == ".txt") {
+            std::ifstream file(dirEntry.path());
+            if (!file) {
+                std::cerr << "Failed to open file\n";
+                continue;
+            }
+            std::string MaliciousMD5Hash;
+            while (std::getline(file, MaliciousMD5Hash)) {
+               if (MaliciousMD5Hash == fileMD5Hash) {
+                    std::cout << "current file is Malicious\n";
+                    return true;
+               }
+            }
+        }
+        else {
+            #ifdef DEBUG
+                std::cout << "In checkMD5Hashes function. MD5 folder has a file that is not a .txt file";
+            #endif
+        }
+    }
+    
+    return false;
+}
+
+bool FileScanner::checkSHA1Hashes(const std::string &fileSHA1Hash) {
+    std::filesystem::path folder = "src/fileScanner/Malware-Hash-Database/SHA1"; 
+    if (!Utils::checkFileExistence(folder)) {
+        #ifdef DEBUG
+            std::cout << "In checkSHA1Hashes function. Passed folder not found. Check where you are running the program from\n";
+        #endif
+
+        std::cerr << "Folder not found\n";
+        return false;
+    }
+
+    #ifdef DEBUG
+        std::cout << "In checkSHA1Hashes function. Found folder\n";
+        std::cout << "Printing out all of the files in folder\n";
+        for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+            std::cout << dirEntry.path() << '\n';
+        }
+    #endif
+    
+    for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+        if (dirEntry.is_regular_file() && dirEntry.path().extension() == ".txt") {
+            std::ifstream file(dirEntry.path());
+            if (!file) {
+                std::cerr << "Failed to open file\n";
+                continue;
+            }
+            std::string MaliciousSHA1Hash;
+            while (std::getline(file, MaliciousSHA1Hash)) {
+               if (MaliciousSHA1Hash == fileSHA1Hash) {
+                    std::cout << "current file is Malicious\n";
+                    return true;
+               }
+            }
+        }
+        else {
+            #ifdef DEBUG
+                std::cout << "In checkSHA1Hashes function. MD5 folder has a file that is not a .txt file";
+            #endif
+        }
+    }
+    
+    return false;
+}
+
+bool FileScanner::checkSHA256Hashes(const std::string &fileSHA256Hash) {
+    std::filesystem::path folder = "src/fileScanner/Malware-Hash-Database/SHA256"; 
+    if (!Utils::checkFileExistence(folder)) {
+        #ifdef DEBUG
+            std::cout << "In checkSHA512Hashes function. Passed folder not found. Check where you are running the program from\n";
+        #endif
+
+        std::cerr << "Folder not found\n";
+        return false;
+    }
+
+    #ifdef DEBUG
+        std::cout << "In checkSHA512Hashes function. Found folder\n";
+        std::cout << "Printing out all of the files in folder\n";
+        for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+            std::cout << dirEntry.path() << '\n';
+        }
+    #endif
+    
+    for (auto const& dirEntry : std::filesystem::directory_iterator{folder}) {
+        if (dirEntry.is_regular_file() && dirEntry.path().extension() == ".txt") {
+            std::ifstream file(dirEntry.path());
+            if (!file) {
+                std::cerr << "Failed to open file\n";
+                continue;
+            }
+            std::string MaliciousSHA256Hash;
+            while (std::getline(file, MaliciousSHA256Hash)) {
+               if (MaliciousSHA256Hash == fileSHA256Hash) {
+                    std::cout << "current file is Malicious\n";
+                    return true;
+               }
+            }
+        }
+        else {
+            #ifdef DEBUG
+                std::cout << "In checkSHA512Hashes function. MD5 folder has a file that is not a .txt file";
+            #endif
+        }
+    }
+    
+    return false;
+}
+
+void FileScanner::start() {
+    const std::string fileMD5Hash = FileScanner::hashingFucntion(EVP_md5());
+    const std::string fileSHA1Hash = FileScanner::hashingFucntion(EVP_sha1());
+    const std::string fileSHA256Hash = FileScanner::hashingFucntion(EVP_sha256());
+
+     #ifdef DEBUG
+        std::cout << "------------------------------------------------\n";
+        std::cout << "DEBUGGIN STEP:\n";
+        std::cout << "MD5 hash: " << fileMD5Hash << '\n';
+        std::cout << "SHA1 hash: " << fileSHA1Hash << '\n';
+        std::cout << "SHA256 hash: " << fileSHA256Hash << '\n';
+        std::cout << "------------------------------------------------\n";
+    #endif
+
+    if (FileScanner::checkMD5Hashes(fileMD5Hash)) {
+        std::cout << "Malicious file found as an MD5 hash!\n";
+    }
+    else if(FileScanner::checkSHA1Hashes(fileSHA1Hash)) {
+        std::cout << "Malicious file found as an SHA1 hash!\n";
+    }
+    else if(FileScanner::checkSHA256Hashes(fileSHA256Hash)) {
+        std::cout << "Malicious file found as an SHA256 hash!\n";
+    }
 
 }
