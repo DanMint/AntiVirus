@@ -2,6 +2,7 @@
 
 #include "fileWalker.h"
 #include "../utils/utils.h"
+#include "../fileScanner/fileScanner.h"
 
 FileWalker::FileWalker(const RunParameters &currentParameters) : currentParameters(currentParameters) {}
 
