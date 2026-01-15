@@ -11,6 +11,8 @@ class FileWalker {
     public:
         FileWalker(const RunParameters &currentParameters);
 
+        void fileScanner(const std::string &fileLocation);
+
         void start();
 
     private:

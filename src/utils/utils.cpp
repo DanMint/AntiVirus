@@ -2,27 +2,75 @@
 #include <filesystem>
 
 #include "utils.h"
+#include "operation.h"
 
-void Utils::checkValidityOfArguments(const int argc, char* const argv[], RunParameters &currentRunParamters) {
-    if (argc == 1) {
+// basic parse of the passed arguments by user. The passed arguments look as follows:
+// ./antivirus "<file/folder location>" <operation type>
+bool Utils::checkValidityOfArguments(const int argc, char* const argv[], RunParameters &currentRunParamters) {
+    if (argc <= 2) {
         std::cerr << "Not enough argumnets\n";
-        return;
+        return false;
     }
-    else if (argc > 2) {
+    else if (argc > 3) {
         std::cerr << "Too many arguments\n";
-        return;
+        return false;
     }
     else {
-        // first checking if file/directory even exists
+        // first checking if file/directory exists
         const std::string inputFile = argv[1];
-        currentRunParamters.passedFile = inputFile;
 
         if (!Utils::checkFileExistence(inputFile)) {
             std::cerr << "File does not exist...\n";
-            return;
+            return false;
         }
+
+        currentRunParamters.passedFile = inputFile;
         Utils::fileType(fs::status(inputFile), currentRunParamters);
-        Utils::printRunParameters(currentRunParamters);
+
+        #ifdef DEBUG
+            Utils::printRunParameters(currentRunParamters);
+        #endif
+        
+        // checking which operation is chosen creating if/else for debug purposes
+        const int operationChosen = std::stoi(argv[2]);
+
+        switch(operationChosen) {
+            case -1:
+                #ifdef DEBUG
+                    std::cout << "Operaion chosen by user is EMPTY(-1)\n";
+                #endif
+                return false;
+            
+            case 0:
+                #ifdef DEBUG
+                    std::cout << "Operaion chosen by user is SCAN(0)\n";
+                #endif
+                currentRunParamters.operation = Operation::Scan;
+                break;
+
+            case 1:
+                 #ifdef DEBUG
+                    std::cout << "Operaion chosen by user is HASH(1)\n";
+                #endif
+                currentRunParamters.operation = Operation::Hash;
+                break;
+
+            case 2:
+                #ifdef DEBUG
+                    std::cout << "Operaion chosen by user is ENCRYPT(2)\n";
+                #endif
+                currentRunParamters.operation = Operation::Encrypt;
+                break;
+            
+            default:
+                #ifdef DEBUG
+                    std::cout << "Operaion chosen by user is  UNDEFINED(" << operationChosen << ")\n";
+                #endif
+                return false;
+        }
+        
+        // all checks passed 
+        return true;
     }
 }
 
