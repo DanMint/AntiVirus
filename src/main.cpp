@@ -13,11 +13,12 @@ int main(int argc, char *argv[]) {
 
     RunParameters RunParameters;
 
-    Utils::checkValidityOfArguments(argc, argv, RunParameters);
+    if (!Utils::checkValidityOfArguments(argc, argv, RunParameters)) {
+        return -1;
+    }
 
-    FileScanner fileScanner(RunParameters.passedFile);
+    FileWalker walkFiles(RunParameters);
+    walkFiles.start();
     
-    // FileWalker startWalk(RunParameters);
-
     return 0;
 }
